@@ -19,10 +19,10 @@ double window_resize(cv::Mat img, int wsize, int pix_coords[2]);
 
 cv::Mat adapt_filtration(cv::Mat img);
 
-// int main(){
+int main(){
 
-//     return 0;
-// }
+     return 0;
+}
 
 void apply_and_save_pack_low_filter(cv::Mat(*low_filter)(cv::Mat), std::string filter, std::vector<cv::Mat> images_to_filter, std::vector<std::string> filenames){
     cv::Mat img_copy;
