@@ -1,0 +1,33 @@
+\documentclass[12pt,a4letter]{article}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{indentfirst}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{nicematrix}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Lab3},
+    pdfpagemode=FullScreen,
+}
+\usepackage{soulutf8}
+\usepackage[left=1cm,right=1cm,
+    top=2cm,bottom=2cm]{geometry}
+\usepackage{titleps}
+    \newpagestyle{main}{
+        \setheadrule{0.4pt}
+        \sethead{something}{\thepage}{}
+}
+%\pagestyle{main}
+\theoremstyle{plain}
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{corollary}{Следствие}[theorem]
+\newtheorem*{example}{\textit{Пример}}
+\newtheorem*{definition}{Определение}
