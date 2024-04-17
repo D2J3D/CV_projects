@@ -17,26 +17,26 @@ cv::Mat Canny_filter(cv::Mat img);
 
 void apply_and_save_pack_high_filter(cv::Mat(*filter)(cv::Mat), std::string filtername, std::vector<cv::Mat> images_to_filter, std::vector<std::string> filenames);
 
-// int main(){
-//     cv::Mat img = cv::imread("/home/den/CV_labs/Lab3/images/original/RQC.png", cv::IMREAD_GRAYSCALE);
-//     cv::Mat img_copy;
-//     img.copyTo(img_copy);
-//     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Roberts_filtered.png", Roberts_filter(img_copy));
+int main(){
+     cv::Mat img = cv::imread("/home/den/CV_labs/Lab3/images/original/RQC.png", cv::IMREAD_GRAYSCALE);
+     cv::Mat img_copy;
+     img.copyTo(img_copy);
+     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Roberts_filtered.png", Roberts_filter(img_copy));
 
-//     img.copyTo(img_copy);
-//     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Previt_filtered.png", Previt_filter(img_copy));
+     img.copyTo(img_copy);
+     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Previt_filtered.png", Previt_filter(img_copy));
 
-//     img.copyTo(img_copy);
-//     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Sobel_filtered.png", Sobel_filter(img_copy));
+     img.copyTo(img_copy);
+     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Sobel_filtered.png", Sobel_filter(img_copy));
 
-//     img.copyTo(img_copy);
-//     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Laplace_filtered.png", Laplace_filter(img_copy));
+     img.copyTo(img_copy);
+     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Laplace_filtered.png", Laplace_filter(img_copy));
 
-//     img.copyTo(img_copy);
-//     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Canny_filtered.png", Canny_filter(img_copy));
+     img.copyTo(img_copy);
+     cv::imwrite("/home/den/CV_labs/Lab3/images/outputs/high_freq_filters/RQC_Canny_filtered.png", Canny_filter(img_copy));
 
-//     return 0;
-// }
+     return 0;
+}
 
 cv::Mat Roberts_filter(cv::Mat img){
     if (img.depth() == CV_8U){
