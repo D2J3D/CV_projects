@@ -15,19 +15,20 @@ cv::Mat wiener_filtration(cv::Mat img);
 
 cv::Mat median_filtration(cv::Mat img);
 
-double window_resize(cv::Mat img, int wsize, int pix_coords[2]);
+double window_resize(cv::Mat img, int row, int col, int kernel_size, int max_s);
 
 cv::Mat adapt_filtration(cv::Mat img);
 
 int main(){
     const std::string DIR = "/home/den/CV_labs/Lab3/images/outputs/noises/";
-    std::vector<cv::Mat> noise_imgs{cv::imread(DIR + "img_with_additive_noise.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_gauss_noise.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_impluse_noise_0sp.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_impluse_noise_1sp.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_impluse_noise_05sp.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_multiplicative_noise.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_quant_noise.png", cv::IMREAD_GRAYSCALE)};
-    std::vector<std::string> filenames = {"img_with_additive_noise.png", "img_with_gauss_noise.png", "img_with_impulse_noise_0sp.png", "img_with_impulse_noise_05sp.png", "img_with_impulse_noise_1sp.png", "img_with_multiplicative_noise.png","img_with_quant_noise.png"};
-    apply_and_save_pack_low_filter(weighted_median_filtration, "weighted_median_", noise_imgs, filenames);
+    std::vector<cv::Mat> noise_imgs{cv::imread(DIR + "img_with_additive_noise.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_gauss_noise.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_impulse_noise_0sp.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_impulse_noise_1sp.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_impulse_noise_05sp.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_multiplicative_noise.png", cv::IMREAD_GRAYSCALE), cv::imread(DIR + "img_with_quant_noise.png", cv::IMREAD_GRAYSCALE)};
+    std::vector<int> coeffs{0, 3, 2, -22, -5, -5, -3};
+    std::vector<std::string> filenames = {"img_with_additive_noise.png", "img_with_gauss_noise.png", "img_with_impulse_noise_0sp.png", "img_with_impulse_noise_1sp.png", "img_with_impulse_noise_05sp.png", "img_with_multiplicative_noise.png", "img_with_quant_noise.png"};
+    
+    apply_and_save_pack_low_filter(rank_filtration, "rank", noise_imgs, filenames);
     apply_and_save_pack_low_filter(rank_filtration, "rank_", noise_imgs, filenames);
     apply_and_save_pack_low_filter(wiener_filtration, "wiener_filter_", noise_imgs, filenames);
     apply_and_save_pack_low_filter(median_filtration, "median_", noise_imgs, filenames);
-
     return 0;
 }
 
@@ -71,7 +72,9 @@ cv::Mat weighted_median_filtration(cv::Mat img){
                 c.clear();
                 for (int a = 0; a < k_size[0]; a++){
                     for (int b = 0; b < k_size[1]; b++){
-                        c.push_back(img_BGR[channel].at<float>(i + a, j + b) * kernel.at<double>(a, b));
+                        for (int k = 0; k < kernel.at<double>(a,b); k++){
+                            c.push_back(img_BGR[channel].at<float>(i + a, j + b));
+                        }
                     } 
                 }
                 std::sort(c.begin(), c.end());
@@ -94,7 +97,7 @@ cv::Mat weighted_median_filtration(cv::Mat img){
 cv::Mat rank_filtration(cv::Mat img){
     int k_size[] = {3, 3}; 
     cv::Mat kernel = cv::Mat::ones(cv::Size(k_size[0], k_size[1]), CV_64F);
-    int rank = 4;
+    int rank = 9;
     cv::Mat img_copy;
     if (img.depth() == CV_8U){
         img.convertTo(img_copy, CV_32F, 1.0 / 255);
@@ -261,23 +264,21 @@ std::vector<double> calc_parameters(cv::Mat img, int pix_coords[2], int s){
     return parameters;
 }
 
-double window_resize(cv::Mat img, int wsize, int pix_coords[2]){
-    int n = img.cols * img.rows;
-    std::vector<double> img_intesities; 
-    for (int i = -wsize/2; i < wsize/2; i++){
-        for (int j = -wsize/2; j < wsize/2 ; j++){
-            int current_coord_y = pix_coords[0] + j;
-            int current_coord_x = pix_coords[1] + i; 
-            if ((current_coord_x >= 0) && (current_coord_x < img.cols) && (current_coord_y >= 0) && (current_coord_y < img.rows)){
-                img_intesities.push_back(img.at<float>(current_coord_y, current_coord_x));
-            }
+double window_resize(cv::Mat img, int row, int col, int kernel_size, int max_size){
+    std::vector<float> img_intesities; 
+    int wsize = kernel_size / 2;
+    for (int i = -wsize; i < wsize; i++){
+        for (int j = -wsize; j < wsize ; j++){
+            int current_row = row + i;
+            int current_col = col + j; 
+            img_intesities.push_back(img.at<float>(current_row, current_col));
         }
     }
     std::sort(img_intesities.begin(), img_intesities.end());
-    float z = img.at<float>(pix_coords[0], pix_coords[1]);
+    float z = img.at<float>(row, col);
     float z_min = img_intesities[0];
-    float z_max = img_intesities[n-1];
-    float z_med = img_intesities[(int)((n / 2) + (n % 2))];
+    float z_max = img_intesities[img_intesities.size()-1];
+    float z_med = img_intesities[(int) (img_intesities.size() / 2)];
     double A1, A2, B1, B2;
     A1 = z_med - z_min;
     A2 = z_med - z_max;
@@ -293,11 +294,11 @@ double window_resize(cv::Mat img, int wsize, int pix_coords[2]){
         }
     }
     else{
-        if (wsize <= 8){
-            return window_resize(img, wsize + 1, pix_coords);
+        if (wsize < max_size){
+            return window_resize(img, row, col, kernel_size + 2, max_size);
         }
         else{
-            return z;
+            return z_med;
         }
     }
 
@@ -305,6 +306,7 @@ double window_resize(cv::Mat img, int wsize, int pix_coords[2]){
 }
 
 cv::Mat adapt_filtration(cv::Mat img){
+    int kernel_size = 3, max_size = 8;
     cv::Mat img_copy;
     if (img.depth() == CV_8U){
         img.convertTo(img_copy, CV_32F, 1.0 / 255);
@@ -315,11 +317,10 @@ cv::Mat adapt_filtration(cv::Mat img){
     std::vector<cv::Mat> img_BGR;
     cv::split(img_copy, img_BGR);
     for (int channel = 0; channel < img_BGR.size(); channel++){
-        for (int i = 0; i < img.cols; i++){
+        for (int i = max_size; i < img.rows - max_size; i++){
             float* row_ptr = img.ptr<float>(i);
-            for (int j = 0; j < img.cols; j++){
-                int pix_coords[2] = {i, j};
-                row_ptr[j] = window_resize(img_BGR[channel], 3, pix_coords);
+            for (int j = max_size; j < img.cols - max_size; j++){
+                row_ptr[j] = window_resize(img_BGR[channel], i, j, kernel_size, max_size);
             }
         }
     }
